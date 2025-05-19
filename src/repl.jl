@@ -327,7 +327,7 @@ end
 
 end # @static if isdefined(LineEdit, :Modifiers)
 
-function LineEdit.complete_line(c::JunoREPLCompletionProvider, s)
+function LineEdit.complete_line(c::JunoREPLCompletionProvider, s; hint::Bool)
   partial = REPL.beforecursor(s.input_buffer)
   full = LineEdit.input_string(s)
 

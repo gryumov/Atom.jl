@@ -7,7 +7,7 @@ else  # if VERSION < v"1.4"
 
 update_project() = @msg updateProject(project_info())
 
-project_info(path = Pkg.project().path) = (name = Pkg.REPLMode.projname(path), path = path)
+project_info(path = Pkg.project().path) = (name = REPL.projname(path), path = path)
 
 # adapted from https://github.com/JuliaLang/Pkg.jl/blob/eb3726d8f9c68bb91707a5c0e9809c95f1c1eee7/src/API.jl#L331-L726
 # but here we only look at "user-depot" and collect usages of each Manifest.toml
