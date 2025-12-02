@@ -26,7 +26,7 @@ wsitem(mod, name, @nospecialize(val)) = begin
     :icon       => wsicon(mod, name, val))
 end
 
-nativetype(mod, name, @nospecialize(val)) = DocSeeker.determinetype(mod, name)
+# nativetype(mod, name, @nospecialize(val)) = DocSeeker.determinetype(mod, name)
 nativetype(mod, name, ::Undefined) = "Undefined"
 
 #=
