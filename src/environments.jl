@@ -7,7 +7,28 @@ else  # if VERSION < v"1.4"
 
 update_project() = @msg updateProject(project_info())
 
-project_info(path = Pkg.project().path) = (name = Pkg.REPLMode.projname(path), path = path)
+# project_info(path = Pkg.project().path) = (name = Pkg.REPLMode.projname(path), path = path)
+
+function project_info(path::String = Pkg.project().path)
+    proj = Pkg.project()
+    if isdefined(proj, :name) && proj.name !== nothing
+        return (name = proj.name, path = path)
+    end
+    
+    if isfile(path)
+        project_file_path = path
+    else
+        project_file_path = joinpath(path, "Project.toml")
+    end
+
+    if isfile(project_file_path)
+        project_data = TOML.parsefile(project_file_path)
+        name = get(project_data, "name", nothing)
+        return (name = name, path = path)
+    else
+        return (name = nothing, path = path)
+    end
+end
 
 # adapted from https://github.com/JuliaLang/Pkg.jl/blob/eb3726d8f9c68bb91707a5c0e9809c95f1c1eee7/src/API.jl#L331-L726
 # but here we only look at "user-depot" and collect usages of each Manifest.toml

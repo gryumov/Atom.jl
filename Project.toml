@@ -29,14 +29,15 @@ Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 Profile = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"
 REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
+SnoopCompileCore = "e2b509da-e806-4183-be48-004708413034"
 Sockets = "6462fe0b-24de-5631-8697-dd941f90decc"
 Tokenize = "0796e94c-ce3b-5d07-9a54-7f471281c624"
+Traceur = "37b6cedf-1f77-55f8-9503-c64b63398394"
 TreeViews = "a2a6695c-b41b-5b7d-aed9-dbfdeacea5d7"
 WebIO = "0f1e0344-ec1d-5b48-a673-e5cf874b6c29"
 WebSockets = "104b5d7c-a370-577a-8038-80a2059c5097"
 
 [compat]
-CSTParser = "=1.1.0, ^2, =2.5.0"
 CodeTools = "^0.6.4, ^0.7"
 CodeTracking = "^0.5.7, 1.0"
 DocSeeker = "^0.4"
@@ -54,8 +55,10 @@ MacroTools = "^0.5"
 Media = "^0.5"
 OrderedCollections = "^1.1"
 Requires = "^0.5, 1.0"
+SnoopCompileCore = "3.0.0"
+Test = "1.11.0"
+Tokenize = "0.5.29"
 Traceur = "^0.3"
-Tokenize = "=0.5.20, =0.5.21"
 TreeViews = "^0.3.0"
 WebIO = "^0.8.1"
 WebSockets = "^1.5"
@@ -63,7 +66,6 @@ julia = "1.6"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-Traceur = "37b6cedf-1f77-55f8-9503-c64b63398394"
 
 [targets]
 test = ["Test"]

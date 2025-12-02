@@ -2,10 +2,5 @@
 
 function _precompile_()
     ccall(:jl_generating_output, Cint, ()) == 1 || return nothing
-    try; @assert(Base.precompile(Tuple{typeof(Core.kwcall),@NamedTuple{mod::String, inmod::Bool},typeof(toplevelitems),String})); catch err; @debug err; end
-    try; @assert(Base.precompile(Tuple{typeof(locals),String,Int64,Int64})); catch err; @debug err; end
-    try; @assert(Base.precompile(Tuple{typeof(str_value),EXPR})); catch err; @debug err; end
-    try; @assert(Base.precompile(Tuple{typeof(toplevelitems),String})); catch err; @debug err; end
-    try; @assert(Base.precompile(Tuple{typeof(traverse_expr!),EXPR})); catch err; @debug err; end
     try; isdefined(Atom, Symbol("#200#201")) && Base.precompile(Tuple{getfield(Atom, Symbol("#200#201"))}); catch err; @debug err; end
 end
