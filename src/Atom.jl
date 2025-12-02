@@ -5,6 +5,7 @@ module Atom
 
 using Base.StackTraces, InteractiveUtils, Logging
 using Juno, Lazy, JSON, MacroTools, Media, Requires
+JSON.lower(f::Function) = string(f)
 import Media: @dynamic
 
 function __init__()

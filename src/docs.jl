@@ -1,5 +1,6 @@
-using DocSeeker
 import Markdown
+
+
 
 handle("searchdocs") do data
   @destruct [
@@ -61,53 +62,36 @@ function processdocs(items)
   else
     Dict(
       :error => false,
-      :items => [renderitem(i[2]) for i in items],
+      :items => [],
       :scores => [i[1] for i in items]
     )
   end
 end
 
-function renderitem(x)
-  r = Dict(f => getfield(x, f) for f in fieldnames(DocSeeker.DocObj))
-  r[:html] = view(renderMD(x.html))
-
-  mod = getmodule(x.mod)
-  name = Symbol(x.name)
-  r[:typ], r[:icon], r[:nativetype] = if (name !== :ans || mod === Base) && iskeyword(name)
-    "keyword", "k", x.typ
-  else
-    val = getfield′(mod, name)
-    # @NOTE: DocSeeker can show docs for non-loaded packages via `createdocsdb()`
-    nativetype = isundefined(val) ? "Undefined or not loaded yet" : x.typ
-    wstype(mod, name, val), wsicon(mod, name, val), nativetype
-  end
-  r
-end
-
 handle("moduleinfo") do data
   @destruct [mod] = data
-  moduleinfo(mod)
+  # moduleinfo(mod)
 end
 
-function moduleinfo(mod)
-  d, items = getmoduleinfo(mod)
-  items = [renderitem(i) for i in items]
-  Dict(:doc => view(d), :items => items)
-end
+# function moduleinfo(mod)
+#   d, items = getmoduleinfo(mod)
+#   items = [renderitem(i) for i in items]
+#   Dict(:doc => view(d), :items => items)
+# end
 
-getmoduleinfo(mod) = ispackage(mod) ? packageinfo(mod) : modinfo(mod)
-ispackage(mod) = Base.find_package(mod) ≠ nothing
+# getmoduleinfo(mod) = ispackage(mod) ? packageinfo(mod) : modinfo(mod)
+# ispackage(mod) = Base.find_package(mod) ≠ nothing
 
-function packageinfo(mod)
-  path = DocSeeker.readmepath(mod)
-  readme = ispath(path) ? String(read(path)) : ""
-  description = Markdown.parse(Symbol(mod) ∈ stdlib_names ? "## Standard library package `$(mod)`" : readme)
+# function packageinfo(mod)
+#   path = DocSeeker.readmepath(mod)
+#   readme = ispath(path) ? String(read(path)) : ""
+#   description = Markdown.parse(Symbol(mod) ∈ stdlib_names ? "## Standard library package `$(mod)`" : readme)
 
-  return  Hiccup.div(
-            renderMD(description),
-            renderMD("\n---\n## Defined symbols in `$(mod)`:")
-          ), modulesymbols(mod)
-end
+#   return  Hiccup.div(
+#             renderMD(description),
+#             renderMD("\n---\n## Defined symbols in `$(mod)`:")
+#           ), modulesymbols(mod)
+# end
 
 function modinfo(mod)
   header = "## "
@@ -123,20 +107,20 @@ function modinfo(mod)
   header *= " `$(mod)`"
   header *= "\n---\n## Defined symbols:"
 
-  return renderMD(header), modulesymbols(mod)
+  return renderMD(header)
 end
 
-function modulesymbols(mod)
-  syms = filter(x -> x.mod == mod, DocSeeker.alldocs())
-  @inbounds sort!(syms, by = x -> x.name)[1:min(100,length(syms))]
-end
+# function modulesymbols(mod)
+#   syms = filter(x -> x.mod == mod, DocSeeker.alldocs())
+#   @inbounds sort!(syms, by = x -> x.name)[1:min(100,length(syms))]
+# end
 
 using Logging: with_logger
 using .Progress: JunoProgressLogger
 
-function regeneratedocs()
-  with_logger(JunoProgressLogger()) do
-    @errs DocSeeker.createdocsdb()
-  end
-end
-handle(regeneratedocs, "regeneratedocs")
+# function regeneratedocs()
+#   with_logger(JunoProgressLogger()) do
+#     @errs DocSeeker.createdocsdb()
+#   end
+# end
+# handle(regeneratedocs, "regeneratedocs")

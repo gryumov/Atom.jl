@@ -14,6 +14,16 @@ const eval_channel_out = Channel(1)
 const eval_backend_task = Ref{Any}(nothing)
 const is_backend_working = Ref{Bool}(false)
 
+function with_editor(f::Function)
+  prev = Media.input[]
+  Media.input[] = Editor()
+  try
+    return f()
+  finally
+    Media.input[] = prev
+  end
+end
+
 function is_evaling()
   return is_backend_working[] || inREPL[]
 end
@@ -66,7 +76,7 @@ end
 
 function evalshow(text, line, path, mod)
   fixjunodisplays()
-  @dynamic let Media.input = Editor()
+  with_editor() do
     mod = getmodule(mod)
 
     result = hideprompt() do
@@ -106,12 +116,12 @@ handle("eval") do data
     mod,
     errorinrepl = :errorInRepl || false
   ] = data
-  run_with_backend(eval, text, line, path, mod, errorinrepl)
+  run_with_backend(atom_eval, text, line, path, mod, errorinrepl)
 end
 
-function eval(text, line, path, mod, errorinrepl = false)
+function atom_eval(text, line, path, mod, errorinrepl = false)
   fixjunodisplays()
-  @dynamic let Media.input = Editor()
+  with_editor() do
     mod = getmodule(mod)
 
     result = hideprompt() do
@@ -159,7 +169,7 @@ end
 
 function evalall(code, mod = nothing, path = "untitled")
   fixjunodisplays()
-  @dynamic let Media.input = Editor()
+  with_editor() do
     mod = if mod !== nothing
        getmodule(mod)
     elseif isabspath(path)
