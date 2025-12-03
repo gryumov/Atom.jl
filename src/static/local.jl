@@ -60,7 +60,7 @@ function localbindings(expr, text, bindings = LocalBS[], pos = 1, line = 1)
     end
 
     if hs
-        typof(expr) === CSTParser.Kw && return bindings
+        headof(expr) === :kw && return bindings
 
         # destructure multiple returns
         if ismultiplereturn(expr)

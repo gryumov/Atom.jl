@@ -78,7 +78,7 @@ include("eval.jl")
 include("repl.jl")
 include("workspace.jl")
 include("outline.jl")
-include("docs.jl")
+# include("docs.jl")
 include("completions.jl")
 include("goto.jl")
 include("datatip.jl")
@@ -88,6 +88,6 @@ include("debugger/debugger.jl")
 include("profiler/profiler.jl")
 
 include("precompile.jl")
-_precompile_()
+# _precompile_()
 
 end # module
