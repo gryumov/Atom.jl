@@ -1,6 +1,6 @@
 using CSTParser
 using CSTParser.Tokens
-using CSTParser: EXPR, typof, kindof, valof, parentof
+using CSTParser: EXPR, headof, kindof, valof, parentof
 
 # meta information
 # ----------------
@@ -17,9 +17,9 @@ include("local.jl")
 # is utilities
 # ------------
 
-iscallexpr(expr::EXPR) = typof(expr) === CSTParser.Call
+iscallexpr(expr::EXPR) = headof(expr) === :call
 
-ismacrocall(expr::EXPR) = typof(expr) === CSTParser.MacroCall
+ismacrocall(expr::EXPR) = headof(expr) === :macrocall
 
 function isinclude(expr::EXPR)
     @inbounds iscallexpr(expr) &&
@@ -38,28 +38,28 @@ end
 function isdoc(expr::EXPR)
     @inbounds ismacrocall(expr) &&
         length(expr) >= 1 &&
-        (typof(expr.args[1]) === CSTParser.GlobalRefDoc || str_value(expr.args[1]) == "@doc")
+        (headof(expr.args[1]) === :globalrefdoc || str_value(expr.args[1]) == "@doc")
 end
 
 function ismultiplereturn(expr::EXPR)
-    typof(expr) === CSTParser.TupleH &&
+    headof(expr) === :tuple &&
         expr.args !== nothing &&
         !isempty(filter(a -> bindingof(a) !== nothing, expr.args))
 end
 
 function iswhereclause(expr::EXPR)
-    typof(expr) === CSTParser.WhereOpCall &&
+    headof(expr) === :where &&
         parentof(expr) !== nothing &&
         expr.args !== nothing
 end
 
 function isconstexpr(expr::EXPR)
-    (parent = parentof(expr)) !== nothing && typof(parent) === CSTParser.Const
+    (parent = parentof(expr)) !== nothing && headof(parent) === :const
 end
 
 ismoduleusage(expr::EXPR) = isimport(expr) || isexport(expr)
-isimport(expr::EXPR) = (t = typof(expr)) === CSTParser.Import || t === CSTParser.Using
-isexport(expr::EXPR) = typof(expr) === CSTParser.Export
+isimport(expr::EXPR) = (t = headof(expr)) === :import || t === :using
+isexport(expr::EXPR) = headof(expr) === :export
 
 # string utilities
 # ----------------
@@ -79,9 +79,9 @@ end
 _Reconstruct_ a source code from `x`.
 """
 function str_value(x::EXPR)::String
-    t = typof(x)
+    t = headof(x)
     k = kindof(x)
-    if t === CSTParser.PUNCTUATION
+    if t === :punctuation
         k === Tokens.LPAREN && return "("
         k === Tokens.LBRACE && return "{"
         k === Tokens.LSQUARE && return "["
@@ -101,15 +101,15 @@ function str_value(x::EXPR)::String
         return " = "
     elseif k === Tokens.WHERE
         return " where "
-    elseif t === CSTParser.Parameters
+    elseif t === :parameters
         return "; " * join(str_value(a) for a in x)
-    elseif t === CSTParser.IDENTIFIER || t === CSTParser.LITERAL || t === CSTParser.OPERATOR || t === CSTParser.KEYWORD
+    elseif t === :IDENTIFIER || t === :LITERAL || t === :OPERATOR || t === :KEYWORD
         return CSTParser.str_value(x)
-    elseif t === CSTParser.Using
+    elseif t === :using
         return "using " * join(str_value(a) for a in x)
-    elseif t === CSTParser.Import
+    elseif t === :import
         return "import " * join(str_value(a) for a in x)
-    elseif t === CSTParser.Export
+    elseif t === :export
         return "export " * join(str_value(a) for a in x)
     else
         return join(str_value(a) for a in x)

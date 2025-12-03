@@ -9,26 +9,26 @@ NOTE:
 =#
 
 function hasscope(x::EXPR)
-    t = typof(x)
+    t = headof(x)
 
     # NOTE: added conditions below when adapted
-    if t === CSTParser.TupleH && (p = parentof(x)) !== nothing && !hasscope(p)
+    if t === :tuple && (p = parentof(x)) !== nothing && !hasscope(p)
         return true
     elseif iswhereclause(x)
         return true
-    elseif t === CSTParser.MacroCall
+    elseif t === :macrocall
         return true
-    elseif t === CSTParser.Quote
+    elseif t === :quote
         return true
     # NOTE: end
 
-    elseif t === CSTParser.BinaryOpCall
-        k = kindof(x.args[2])
-        if k === Tokens.EQ && CSTParser.is_func_call(x.args[1])
+    elseif CSTParser.isbinarycall(x) || CSTParser.isbinarysyntax(x)
+        op_val = CSTParser.isbinarycall(x) ? CSTParser.valof(x.args[1]) : CSTParser.valof(x.head)
+        if op_val == "=" && CSTParser.is_func_call(x.args[1])
             return true
-        elseif k === Tokens.EQ && typof(x.args[1]) === CSTParser.Curly
+        elseif op_val == "=" && headof(x.args[1]) === :curly
             return true
-        elseif k === Tokens.ANON_FUNC
+        elseif op_val == "->"
             return true
         else
             return false
@@ -37,20 +37,20 @@ function hasscope(x::EXPR)
     # elseif t === CSTParser.WhereOpCall
     #     # unless in func def signature
     #     return !_in_func_def(x)
-    elseif t === CSTParser.FunctionDef ||
-           t === CSTParser.Macro ||
-           t === CSTParser.For ||
-           t === CSTParser.While ||
-           t === CSTParser.Let ||
-           t === CSTParser.Generator || # and Flatten?
-           t === CSTParser.Try ||
-           t === CSTParser.Do ||
-           t === CSTParser.ModuleH ||
-           t === CSTParser.BareModule ||
-           t === CSTParser.Abstract ||
-           t === CSTParser.Primitive ||
-           t === CSTParser.Mutable ||
-           t === CSTParser.Struct
+    elseif t === :function ||
+           t === :macro ||
+           t === :for ||
+           t === :while ||
+           t === :let ||
+           t === :generator || # and Flatten?
+           t === :try ||
+           t === :do ||
+           t === :module ||
+           t === :baremodule ||
+           t === :abstract ||
+           t === :primitive ||
+           t === :mutable ||
+           t === :struct
         return true
     end
 
@@ -63,18 +63,18 @@ end
 #     # check 1st arg contains a call (or op call)
 #     ex = x.args[1]
 #     while true
-#         if typof(ex) === CSTParser.WhereOpCall ||
+#         if headof(ex) === CSTParser.WhereOpCall ||
 #            (
-#             typof(ex) === CSTParser.BinaryOpCall &&
+#             headof(ex) === CSTParser.BinaryOpCall &&
 #             kindof(ex.args[2]) === CSTParser.Tokens.DECLARATION
 #            )
 #             ex = ex.args[1]
-#         elseif typof(ex) === CSTParser.Call ||
+#         elseif headof(ex) === CSTParser.Call ||
 #                (
-#                 typof(ex) === CSTParser.BinaryOpCall &&
+#                 headof(ex) === CSTParser.BinaryOpCall &&
 #                 !(kindof(ex.args[2]) === CSTParser.Tokens.DOT)
 #                ) ||
-#                typof(ex) == CSTParser.UnaryOpCall #&& kindof(ex.args[1]) == CSTParser.Tokens.MINUS
+#                headof(ex) == CSTParser.UnaryOpCall #&& kindof(ex.args[1]) == CSTParser.Tokens.MINUS
 #             break
 #         else
 #             return false
@@ -85,12 +85,12 @@ end
 #     while true
 #         if !(parentof(ex) isa EXPR)
 #             return false
-#         elseif typof(parentof(ex)) === CSTParser.WhereOpCall ||
-#                typof(parentof(ex)) === CSTParser.InvisBrackets
+#         elseif headof(parentof(ex)) === CSTParser.WhereOpCall ||
+#                headof(parentof(ex)) === CSTParser.InvisBrackets
 #             ex = parentof(ex)
-#         elseif typof(parentof(ex)) === CSTParser.FunctionDef ||
+#         elseif headof(parentof(ex)) === CSTParser.FunctionDef ||
 #                (
-#                 typof(parentof(ex)) === CSTParser.BinaryOpCall &&
+#                 headof(parentof(ex)) === CSTParser.BinaryOpCall &&
 #                 kindof(parentof(ex).args[2]) === CSTParser.Tokens.EQ
 #                )
 #             return true

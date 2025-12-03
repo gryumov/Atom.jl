@@ -98,10 +98,10 @@ function _toplevelitems(text, expr, items = ToplevelItem[], line = 1, pos = 1;
 end
 
 function shouldenter(expr::EXPR, mod::Union{Nothing,AbstractString})
-    typof(expr) !== CSTParser.Call &&
+    headof(expr) !== :call &&
     !(hasscope(expr) &&
     !(
-        typof(expr) === CSTParser.FileH ||
+        headof(expr) === :file ||
         (CSTParser.defines_module(expr) && shouldentermodule(expr, mod)) ||
         isdoc(expr)
     ))
